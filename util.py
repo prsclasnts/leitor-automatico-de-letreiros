@@ -1,4 +1,6 @@
 import easyocr
+import pandas as pd
+from fuzzywuzzy import fuzz
 
 # Inicializa o leitor OCR
 reader = easyocr.Reader(['pt'], gpu=False)
@@ -85,3 +87,64 @@ def get_bus(destination, vehicle_track_ids):
         return vehicle_track_ids[car_indx]
 
     return -1, -1, -1, -1, -1
+
+
+def get_bus_line():
+
+    # 1. Carregar os dados do arquivo CSV de entrada
+    input_csv = 'output/dados_lidos.csv'  # Substitua pelo seu arquivo de entrada
+    output_csv = 'output/linhas_identificadas.csv'  # Arquivo de saída
+
+    # Carrega o DataFrame do CSV (supondo colunas: id_onibus, precisao_letreiro, texto_lido, precisao_texto)
+    df = pd.read_csv(input_csv)
+
+    # 2. Lista de linhas válidas (exemplo - você pode carregar de outro CSV ou banco de dados)
+    linhas_validas = [
+        '223 Açucena',
+        '223 Unifap',
+        '124 Amazonas',
+        '124 Zerão',
+        '441 Brasil Novo',
+        '441 Universidade',
+        '105 Fortaleza',
+        '105 Centro',
+        '453 Infraero II',
+        '453 Zerão',
+        '431 Macapaba',
+        '431 Garden Shopping',
+        'Macapá - Santana',
+        'Via coração',
+        '214 Marabaixo',
+        '214 Universidade',
+        '611 Renascer',
+        '611 Unifap',
+        '510 Terra Nova',
+        '510 Garden',
+        '131 Universidade',
+        '131 Jardim',
+        '112 Zerão',
+        '112 São Camilo'
+    ]
+
+    # 3. Função para encontrar a melhor correspondência usando fuzzy matching
+    def encontrar_linha(texto_lido, linhas_validas, limiar=80):
+        melhor_correspondencia = None
+        maior_pontuacao = 0
+        texto_lido = str(texto_lido).upper().strip()  # Padroniza o texto (evita NaN)
+
+        for linha in linhas_validas:
+            pontuacao = fuzz.ratio(texto_lido, linha.upper())
+            if pontuacao > maior_pontuacao and pontuacao >= limiar:
+                maior_pontuacao = pontuacao
+                melhor_correspondencia = linha
+        return melhor_correspondencia if melhor_correspondencia else "NÃO IDENTIFICADO"
+
+    # 4. Aplica a função para identificar a linha
+    df['linha_identificada'] = df['texto_lido'].apply(
+        lambda x: encontrar_linha(x, linhas_validas, limiar=80)
+    )
+
+    # 5. Salva o resultado em um novo CSV
+    df.to_csv(output_csv, index=False, encoding='utf-8')
+
+    print(f"Processamento concluído! Resultados salvos em: {output_csv}")

@@ -6,6 +6,7 @@ __pycache__/
 .venv
 models/
 output/
+videos/
 
 sort/
 

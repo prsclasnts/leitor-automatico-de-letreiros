@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import cv2
 from sort.sort import *
-from util import get_bus, read_destination, write_csv
+from util import get_bus, read_destination, write_csv, get_bus_line
 
 
 results = {}
@@ -13,7 +13,7 @@ coco_model = YOLO('yolov8s.pt')
 destination_detector = YOLO('./models/best.pt')
 
 # carrega o video
-cap = cv2.VideoCapture('./sample4.mp4')
+cap = cv2.VideoCapture('./videos/sample3.mp4')
 
 coco_bus_id = 5 # o n°5 corresponde ao id da classe ônibus no dataset COCO
 
@@ -65,4 +65,5 @@ while ret:
                                                                     'text_score': destination_text_score}}
                
                     # escreve os resultados no arquivo CSV
-                    write_csv(results, './output/test.csv')
+                    write_csv(results, './output/dados_lidos.csv')
+                    get_bus_line()

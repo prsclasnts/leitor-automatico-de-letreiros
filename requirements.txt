@@ -5,3 +5,5 @@ numpy==1.26.4
 scipy
 easyocr==1.7.0
 filterpy==1.4.5
+fuzzywuzzy
+python-Levenshtein
